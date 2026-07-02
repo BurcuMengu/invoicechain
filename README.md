@@ -10,6 +10,26 @@ settle or default updates the issuer's on-chain trust score, so good payers earn
 a better reputation over time. A React frontend ties it together with a
 Freighter wallet connection and a testnet faucet for demo USDC.
 
+## Live demo
+
+**https://burcumengu.github.io/invoicechain/** — running on Stellar **testnet**.
+Connect a Freighter wallet, claim test USDC from the in-app faucet, then create,
+buy, and settle invoices. (No real funds — testnet only.)
+
+## Screenshots
+
+### Desktop
+
+| Marketplace | Create invoice | Fiat ramp (mock) |
+|---|---|---|
+| ![Marketplace](docs/screenshots/desktop-marketplace.png) | ![Create invoice](docs/screenshots/desktop-create.png) | ![Fiat ramp](docs/screenshots/desktop-ramp.png) |
+
+### Mobile responsive
+
+| Marketplace | Create | Fiat ramp |
+|---|---|---|
+| ![Marketplace mobile](docs/screenshots/mobile-marketplace.png) | ![Create mobile](docs/screenshots/mobile-create.png) | ![Ramp mobile](docs/screenshots/mobile-ramp.png) |
+
 ## Architecture
 
 Three Soroban contracts and a React single-page app:
