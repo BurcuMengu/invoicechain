@@ -176,8 +176,8 @@ Keys are supplied at build time via `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY`,
 `frontend/.env.example` for local dev).
 
 | PostHog — product analytics + session replay | Sentry — error monitoring |
-|---|---|
-| ![PostHog analytics](docs/screenshots/analytics-posthog.png) | ![Sentry monitoring](docs/screenshots/analytics-sentry.png) |
+|:---:|:---:|
+| <img src="docs/screenshots/analytics-posthog.png" width="420"> | <img src="docs/screenshots/analytics-sentry.png" width="420"> |
 
 The PostHog capture shows live events from the deployed app — `wallet_connected`,
 `Identify` (wallet address), plus autocapture and web vitals; Sentry shows the
