@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { useWallet } from './WalletContext'
 import { getToken } from './clients'
 import { readTx } from './tx'
+import { parseContractError } from './errors'
 
 type BalanceState = {
   balance: bigint | null
@@ -39,7 +40,7 @@ export function BalanceProvider({ children }: { children: ReactNode }) {
         const result = await readTx(assembled)
         if (!cancelled) setBalance(result as unknown as bigint)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+        if (!cancelled) setError(parseContractError(e))
       } finally {
         if (!cancelled) setLoading(false)
       }

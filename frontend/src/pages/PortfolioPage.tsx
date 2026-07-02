@@ -9,6 +9,7 @@ import { config } from '../lib/config'
 import { fromStroops } from '../lib/format'
 import { useInvoicesBySeller, useInvoicesByOwner } from '../hooks/useInvoices'
 import { track, captureError } from '../lib/analytics'
+import { parseContractError } from '../lib/errors'
 import InvoiceCard from '../components/InvoiceCard'
 import type { Score } from '../contracts/reputation/src'
 
@@ -80,7 +81,7 @@ export default function PortfolioPage() {
         const result = await readTx(await rep.get_score({ party: address }))
         if (!cancelled) setScore(result as unknown as Score)
       } catch (e) {
-        if (!cancelled) setScoreError(e instanceof Error ? e.message : String(e))
+        if (!cancelled) setScoreError(parseContractError(e))
       } finally {
         if (!cancelled) setScoreLoading(false)
       }

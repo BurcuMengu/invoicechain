@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getToken } from '../lib/clients'
+import { parseContractError } from '../lib/errors'
 import { readTx } from '../lib/tx'
 
 export interface UseBalanceResult {
@@ -35,7 +36,7 @@ export function useBalance(address: string | null): UseBalanceResult {
         const result = await readTx(assembled)
         if (!cancelled) setBalance(result as unknown as bigint)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+        if (!cancelled) setError(parseContractError(e))
       } finally {
         if (!cancelled) setLoading(false)
       }

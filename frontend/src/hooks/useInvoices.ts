@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getMarketplace } from '../lib/clients'
 import { readTx } from '../lib/tx'
+import { parseContractError } from '../lib/errors'
 import type { Invoice, Status } from '../contracts/marketplace/src'
 
 export type { Invoice, Status }
@@ -39,7 +40,7 @@ export function useOpenInvoices(): UseInvoicesResult {
         const result = await readTx(await mkt.list_open())
         if (!cancelled) setInvoices(result)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+        if (!cancelled) setError(parseContractError(e))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -75,7 +76,7 @@ export function useInvoicesByOwner(addr: string | null): UseInvoicesResult {
         const result = await readTx(await mkt.list_by_owner({ owner: addr }))
         if (!cancelled) setInvoices(result)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+        if (!cancelled) setError(parseContractError(e))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -111,7 +112,7 @@ export function useInvoicesBySeller(addr: string | null): UseInvoicesResult {
         const result = await readTx(await mkt.list_by_seller({ seller: addr }))
         if (!cancelled) setInvoices(result)
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e))
+        if (!cancelled) setError(parseContractError(e))
       } finally {
         if (!cancelled) setLoading(false)
       }

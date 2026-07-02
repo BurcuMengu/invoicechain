@@ -8,6 +8,7 @@ import { runTx } from '../lib/tx'
 import { fromStroops } from '../lib/format'
 import { useBalance } from '../hooks/useBalance'
 import { track, captureError } from '../lib/analytics'
+import { parseContractError } from '../lib/errors'
 
 export default function OnboardingPage() {
   const { address, connect, signTransaction } = useWallet()
@@ -33,7 +34,7 @@ export default function OnboardingPage() {
       refreshHeader()
     } catch (e) {
       captureError(e)
-      toast.error(e instanceof Error ? e.message : String(e))
+      toast.error(parseContractError(e))
     } finally {
       setClaiming(false)
     }
