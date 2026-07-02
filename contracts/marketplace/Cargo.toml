@@ -1,5 +1,5 @@
 [package]
-name = "test_token"
+name = "marketplace"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,6 +11,8 @@ soroban-sdk = { workspace = true }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
+test_token = { path = "../test_token", features = ["testutils"] }
+reputation = { path = "../reputation", features = ["testutils"] }
 
 [features]
 testutils = ["soroban-sdk/testutils"]
