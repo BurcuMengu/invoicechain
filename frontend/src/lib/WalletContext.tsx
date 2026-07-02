@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'
 import { pickAndConnect, signTx, kit } from './wallet'
 import { config } from './config'
+import { identifyWallet, track, captureError } from './analytics'
 
 type WalletState = {
   address: string | null
@@ -27,10 +28,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const connect = useCallback(async () => {
-    const { address: a, walletId } = await pickAndConnect()
-    localStorage.setItem('ic_addr', a)
-    localStorage.setItem('ic_wallet_id', walletId)
-    setAddress(a)
+    try {
+      const { address: a, walletId } = await pickAndConnect()
+      localStorage.setItem('ic_addr', a)
+      localStorage.setItem('ic_wallet_id', walletId)
+      setAddress(a)
+      identifyWallet(a)
+      track('wallet_connected')
+    } catch (e) {
+      captureError(e)
+      throw e
+    }
   }, [])
 
   const disconnect = useCallback(() => {

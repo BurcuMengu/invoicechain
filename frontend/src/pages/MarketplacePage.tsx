@@ -10,6 +10,7 @@ import { getMarketplace, getToken } from '../lib/clients'
 import { runTx } from '../lib/tx'
 import { salePrice } from '../lib/format'
 import { config } from '../lib/config'
+import { track, captureError } from '../lib/analytics'
 
 async function getCurrentLedger(): Promise<number> {
   const server = new Server(config.rpcUrl)
@@ -74,10 +75,12 @@ export default function MarketplacePage() {
       const mkt = getMarketplace(signTransaction, address)
       await runTx(await mkt.buy_invoice({ id: invoiceId, investor: address }))
 
+      track('invoice_bought', { id: String(invoiceId) })
       toast.success('Invoice purchased successfully!')
       refetch()
       refreshHeader()
     } catch (e) {
+      captureError(e)
       toast.error(e instanceof Error ? e.message : 'Transaction failed.')
     } finally {
       setPendingId(null)

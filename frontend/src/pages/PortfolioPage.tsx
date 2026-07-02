@@ -8,6 +8,7 @@ import { runTx, readTx } from '../lib/tx'
 import { config } from '../lib/config'
 import { fromStroops } from '../lib/format'
 import { useInvoicesBySeller, useInvoicesByOwner } from '../hooks/useInvoices'
+import { track, captureError } from '../lib/analytics'
 import InvoiceCard from '../components/InvoiceCard'
 import type { Score } from '../contracts/reputation/src'
 
@@ -100,9 +101,11 @@ export default function PortfolioPage() {
     try {
       const mkt = getMarketplace(signTransaction, address)
       await runTx(await mkt.cancel_invoice({ id }))
+      track('invoice_cancelled', { id: String(id) })
       toast.success('Invoice cancelled.')
       refetchAll()
     } catch (e) {
+      captureError(e)
       toast.error(e instanceof Error ? e.message : 'Cancel failed.')
     } finally {
       setPendingId(null)
@@ -132,10 +135,12 @@ export default function PortfolioPage() {
       const mkt = getMarketplace(signTransaction, address)
       await runTx(await mkt.settle({ id, payer: address }))
 
+      track('invoice_settled', { id: String(id) })
       toast.success('Invoice settled successfully!')
       refetchAll()
       refreshHeader()
     } catch (e) {
+      captureError(e)
       toast.error(e instanceof Error ? e.message : 'Settle failed.')
     } finally {
       setPendingId(null)
@@ -148,9 +153,11 @@ export default function PortfolioPage() {
     try {
       const mkt = getMarketplace(signTransaction, address)
       await runTx(await mkt.mark_default({ id }))
+      track('invoice_defaulted', { id: String(id) })
       toast.success('Invoice marked as defaulted.')
       refetchAll()
     } catch (e) {
+      captureError(e)
       toast.error(e instanceof Error ? e.message : 'Mark default failed.')
     } finally {
       setPendingId(null)

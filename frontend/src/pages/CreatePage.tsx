@@ -7,6 +7,7 @@ import { getMarketplace } from '../lib/clients'
 import { toStroops } from '../lib/format'
 import { runTx } from '../lib/tx'
 import { config } from '../lib/config'
+import { track, captureError } from '../lib/analytics'
 
 async function getCurrentLedger(): Promise<number> {
   const server = new Server(config.rpcUrl)
@@ -105,9 +106,11 @@ export default function CreatePage() {
           discount_bps,
         }),
       )
+      track('invoice_created', { faceValue: String(face_value), discountBps: discount_bps })
       toast.success('Invoice created successfully!')
       navigate('/portfolio')
     } catch (e) {
+      captureError(e)
       toast.error(e instanceof Error ? e.message : 'Transaction failed.')
     } finally {
       setPending(false)

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import WalletBar from './WalletBar'
+import FeedbackWidget from './FeedbackWidget'
 
 const NAV_LINKS = [
   { to: '/', label: 'Marketplace', end: true },
@@ -92,6 +93,8 @@ export default function Layout() {
           <Outlet />
         </div>
       </main>
+
+      <FeedbackWidget />
     </div>
   )
 }

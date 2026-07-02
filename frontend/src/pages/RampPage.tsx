@@ -6,6 +6,7 @@ import { getToken } from '../lib/clients'
 import { runTx } from '../lib/tx'
 import { fromStroops } from '../lib/format'
 import { useBalance } from '../hooks/useBalance'
+import { track, captureError } from '../lib/analytics'
 
 export default function RampPage() {
   const { address, connect, signTransaction } = useWallet()
@@ -30,10 +31,12 @@ export default function RampPage() {
       const token = getToken(signTransaction, address)
       const assembled = await token.faucet({ to: address })
       await runTx(assembled)
+      track('faucet_claimed')
       toast.success('1000 test USDC deposited to your wallet!')
       refetch()
       refreshHeader()
     } catch (e) {
+      captureError(e)
       toast.error(e instanceof Error ? e.message : String(e))
     } finally {
       setDepositing(false)
