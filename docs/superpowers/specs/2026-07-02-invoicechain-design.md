@@ -2,7 +2,6 @@
 
 **Date:** 2026-07-02
 **Status:** Approved
-**Level:** Stellar Level 4–7 (Production MVP)
 
 ## Goal
 A production-ready, end-to-end Stellar (Soroban) dApp where small businesses
@@ -138,7 +137,7 @@ NotDueYet, Unauthorized.
   submit → poll result → refresh from contract views. Contract events indexed
   via Stellar RPC `getEvents` for activity feeds.
 
-## Production requirements (Level 4–7)
+## Production requirements
 - **Deployment:** contracts on Stellar **testnet**; frontend on Vercel/Netlify
   (production URL).
 - **Monitoring:** Sentry for error tracking (frontend + failed tx).
