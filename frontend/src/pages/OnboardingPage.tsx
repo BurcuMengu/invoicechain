@@ -9,6 +9,7 @@ import { fromStroops } from '../lib/format'
 import { useBalance } from '../hooks/useBalance'
 import { track, captureError } from '../lib/analytics'
 import { parseContractError } from '../lib/errors'
+import { fundTestnetAccount } from '../lib/friendbot'
 
 export default function OnboardingPage() {
   const { address, connect, signTransaction } = useWallet()
@@ -25,6 +26,9 @@ export default function OnboardingPage() {
     if (!address) return
     setClaiming(true)
     try {
+      // A fresh testnet wallet has no XLM and doesn't exist on-chain yet, so it
+      // can't pay tx fees. Fund it via Friendbot first (no-op if already funded).
+      await fundTestnetAccount(address)
       const token = getToken(signTransaction, address)
       const assembled = await token.faucet({ to: address })
       await runTx(assembled)

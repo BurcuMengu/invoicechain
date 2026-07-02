@@ -14,7 +14,10 @@ export function parseContractError(e: unknown): string {
   const s = typeof e === 'string' ? e : (e as Error)?.message ?? String(e)
   const m = s.match(/Error\(Contract, #(\d+)\)/)
   if (m) return MARKET_ERRORS[Number(m[1])] ?? `Contract error #${m[1]}`
+  if (/account not found|op_no_account|no.?such.?account/i.test(s))
+    return 'Your testnet account is not funded yet — get test USDC from Onboarding/Ramp first (it funds your account), then retry.'
   if (/insufficient allowance/i.test(s)) return 'You have not approved enough USDC'
-  if (/insufficient balance/i.test(s)) return 'Insufficient USDC balance'
+  if (/insufficient balance|txinsufficientfee|insufficient fee/i.test(s))
+    return 'Insufficient balance to cover the transaction — make sure your testnet account is funded.'
   return 'Transaction failed. Please try again.'
 }

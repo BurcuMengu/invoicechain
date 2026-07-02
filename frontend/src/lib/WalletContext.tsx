@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, ReactNode 
 import { pickAndConnect, signTx, kit } from './wallet'
 import { config } from './config'
 import { identifyWallet, track, captureError } from './analytics'
+import { fundTestnetAccount } from './friendbot'
 
 type WalletState = {
   address: string | null
@@ -35,6 +36,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setAddress(a)
       identifyWallet(a)
       track('wallet_connected')
+      // A fresh testnet wallet doesn't exist on-chain and has no XLM for fees.
+      // Fund it in the background so any first action (create/buy) works too.
+      void fundTestnetAccount(a)
     } catch (e) {
       captureError(e)
       throw e

@@ -8,6 +8,7 @@ import { fromStroops } from '../lib/format'
 import { useBalance } from '../hooks/useBalance'
 import { track, captureError } from '../lib/analytics'
 import { parseContractError } from '../lib/errors'
+import { fundTestnetAccount } from '../lib/friendbot'
 
 export default function RampPage() {
   const { address, connect, signTransaction } = useWallet()
@@ -29,6 +30,9 @@ export default function RampPage() {
     }
     setDepositing(true)
     try {
+      // Fund the account with test XLM first so it exists on-chain and can pay
+      // fees (no-op if already funded); otherwise the USDC faucet would fail.
+      await fundTestnetAccount(address)
       const token = getToken(signTransaction, address)
       const assembled = await token.faucet({ to: address })
       await runTx(assembled)
