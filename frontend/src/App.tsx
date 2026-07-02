@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import MarketplacePage from './pages/MarketplacePage'
 import CreatePage from './pages/CreatePage'
@@ -8,7 +8,7 @@ import OnboardingPage from './pages/OnboardingPage'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<MarketplacePage />} />
@@ -19,6 +19,6 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
