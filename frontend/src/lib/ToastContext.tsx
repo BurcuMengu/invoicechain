@@ -21,7 +21,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={api}>
       {children}
-      <div className="fixed bottom-4 right-4 space-y-2 z-50">
+      <div className="fixed bottom-4 right-4 space-y-2 z-50" role="status" aria-live="polite">
         {toasts.map((t) => (
           <div
             key={t.id}
