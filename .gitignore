@@ -1,0 +1,6 @@
+target
+.soroban
+.stellar
+node_modules
+.DS_Store
+dist
