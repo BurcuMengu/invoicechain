@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Server } from '@stellar/stellar-sdk/rpc'
 import { useOpenInvoices } from '../hooks/useInvoices'
 import InvoiceCard from '../components/InvoiceCard'
 import { useWallet } from '../lib/WalletContext'
@@ -9,11 +10,11 @@ import { runTx } from '../lib/tx'
 import { salePrice } from '../lib/format'
 import { config } from '../lib/config'
 
-/**
- * A large future ledger number used as the token approval expiration.
- * Matches the constant used in the contract e2e tests.
- */
-const APPROVAL_EXPIRY = 4_000_000
+async function getCurrentLedger(): Promise<number> {
+  const server = new Server(config.rpcUrl)
+  const info = await server.getLatestLedger()
+  return info.sequence
+}
 
 function SkeletonCard() {
   return (
@@ -55,13 +56,15 @@ export default function MarketplacePage() {
     setPendingId(invoiceId)
     try {
       // Step 1: approve the marketplace contract to spend the sale price
+      const currentLedger = await getCurrentLedger()
+      const expiration_ledger = currentLedger + 500_000
       const token = getToken(signTransaction, address)
       await runTx(
         await token.approve({
           from: address,
           spender: config.contractIds.marketplace,
           amount: price,
-          expiration_ledger: APPROVAL_EXPIRY,
+          expiration_ledger,
         }),
       )
 
