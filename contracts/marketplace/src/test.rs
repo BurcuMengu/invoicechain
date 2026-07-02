@@ -243,7 +243,7 @@ fn buy_invoice_rejects_unknown_id() {
 }
 
 #[test]
-fn settle_pays_owner_face_value_and_bumps_reputation() {
+fn settle_pays_owner_face_value() {
     let s = setup();
     let market = MarketplaceClient::new(&s.env, &s.market_id);
     let token = test_token::TestTokenClient::new(&s.env, &s.token_id);
@@ -330,7 +330,8 @@ fn mark_default_after_due_sets_defaulted_and_penalizes() {
     token.approve(&investor, &market.address, &1_000_000_000i128, &10000);
     market.buy_invoice(&id, &investor);
 
-    s.env.ledger().set_sequence_number(600); // past due 500
+    // past due 500 AND past the grace period (500 + 17_280)
+    s.env.ledger().set_sequence_number(500 + 17_280 + 1);
     market.mark_default(&id);
     assert_eq!(market.get_invoice(&id).status, Status::Defaulted);
 }
@@ -346,7 +347,9 @@ fn mark_default_rejects_before_due() {
     token.faucet(&investor);
     token.approve(&investor, &market.address, &1_000_000_000i128, &10000);
     market.buy_invoice(&id, &investor);
-    // still at sequence 100, due is 500 → NotDueYet
+    // sequence 600 is past due (500) but still inside the grace window
+    // (500 + 17_280) → NotDueYet
+    s.env.ledger().set_sequence_number(600);
     let res = market.try_mark_default(&id);
     assert_eq!(res, Err(Ok(Error::from_contract_error(MarketError::NotDueYet as u32))));
 }
@@ -408,12 +411,47 @@ fn mark_default_records_reputation() {
     token.approve(&investor, &market.address, &1_000_000_000i128, &10000);
     market.buy_invoice(&id, &investor);
 
-    s.env.ledger().set_sequence_number(600);
+    s.env.ledger().set_sequence_number(500 + 17_280 + 1); // past due + grace
     market.mark_default(&id);
 
     let rep = reputation::ReputationClient::new(&s.env, &s.rep_id);
     let score = rep.get_score(&seller);
     assert_eq!(score.defaulted_count, 1);
+}
+
+#[test]
+#[should_panic] // inv.owner.require_auth() traps when a non-owner invokes mark_default
+fn mark_default_rejects_non_owner() {
+    // Use the standard setup (mock_all_auths) to create + fund the invoice.
+    let s = setup();
+    let market = MarketplaceClient::new(&s.env, &s.market_id);
+    let token = test_token::TestTokenClient::new(&s.env, &s.token_id);
+    let seller = Address::generate(&s.env);
+    let investor = Address::generate(&s.env);
+
+    let id = market.create_invoice(
+        &seller, &String::from_str(&s.env, "ACME"),
+        &1_000_000_000i128, &500u64, &1000u32,
+    );
+    token.faucet(&investor);
+    token.approve(&investor, &market.address, &1_000_000_000i128, &10000);
+    market.buy_invoice(&id, &investor); // owner is now the investor
+
+    // Advance past due + grace so only the auth gate can reject.
+    s.env.ledger().set_sequence_number(500 + 17_280 + 1);
+
+    // Switch to explicit auth: authorize ONLY a non-owner intruder for mark_default.
+    let intruder = Address::generate(&s.env);
+    s.env.mock_auths(&[MockAuth {
+        address: &intruder,
+        invoke: &MockAuthInvoke {
+            contract: &s.market_id,
+            fn_name: "mark_default",
+            args: (id,).into_val(&s.env),
+            sub_invokes: &[],
+        },
+    }]);
+    market.mark_default(&id); // inv.owner.require_auth() has no matching auth → panic
 }
 
 #[test]

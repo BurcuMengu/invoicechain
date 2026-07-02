@@ -19,6 +19,7 @@ pub trait ReputationInterface {
 const DAY_IN_LEDGERS: u32 = 17_280;
 const INVOICE_BUMP_AMOUNT: u32 = 30 * DAY_IN_LEDGERS;
 const INVOICE_LIFETIME_THRESHOLD: u32 = INVOICE_BUMP_AMOUNT - DAY_IN_LEDGERS;
+const GRACE_PERIOD_LEDGERS: u64 = 17_280; // ~1 day at 5s/ledger
 
 fn read_invoice(env: &Env, id: u64) -> Invoice {
     env.storage()
@@ -159,15 +160,21 @@ impl Marketplace {
         }
         inv.status = Status::Cancelled;
         write_invoice(&env, &inv);
+        env.storage().instance().extend_ttl(INVOICE_LIFETIME_THRESHOLD, INVOICE_BUMP_AMOUNT);
         env.events().publish((symbol_short!("cancelled"), inv.seller.clone()), id);
     }
 
     pub fn mark_default(env: Env, id: u64) {
         let mut inv = read_invoice(&env, id);
+        // Only the invoice owner (the investor, the harmed party) may default it.
+        inv.owner.require_auth();
         if inv.status != Status::Funded {
             panic_with_error!(&env, MarketError::NotFunded);
         }
-        if (env.ledger().sequence() as u64) < inv.due_ledger {
+        // Grace period: default is only allowed once the invoice is past due
+        // by at least GRACE_PERIOD_LEDGERS, so a barely-late invoice cannot be
+        // defaulted the instant it crosses due_ledger.
+        if (env.ledger().sequence() as u64) < inv.due_ledger + GRACE_PERIOD_LEDGERS {
             panic_with_error!(&env, MarketError::NotDueYet);
         }
         // CEI: write state + bump TTL BEFORE cross-contract call and event
