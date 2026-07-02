@@ -1,7 +1,5 @@
-import { useEffect, useState, useCallback } from 'react'
 import { useWallet } from '../lib/WalletContext'
-import { getToken } from '../lib/clients'
-import { readTx } from '../lib/tx'
+import { useBalanceCtx } from '../lib/BalanceContext'
 import { fromStroops } from '../lib/format'
 
 function truncate(addr: string) {
@@ -10,38 +8,16 @@ function truncate(addr: string) {
 
 export default function WalletBar() {
   const { address, connect, disconnect } = useWallet()
-  const [balance, setBalance] = useState<string | null>(null)
-  const [balError, setBalError] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const { balance, loading, error, refresh } = useBalanceCtx()
 
-  const fetchBalance = useCallback(async (addr: string) => {
-    setLoading(true)
-    setBalError(false)
-    try {
-      const token = getToken()
-      const assembled = await token.balance({ id: addr })
-      const raw = await readTx(assembled)
-      setBalance(fromStroops(raw as bigint))
-    } catch {
-      setBalError(true)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (address) {
-      void fetchBalance(address)
-    } else {
-      setBalance(null)
-      setBalError(false)
-    }
-  }, [address, fetchBalance])
+  const onConnect = async () => {
+    try { await connect() } catch { /* user cancelled */ }
+  }
 
   if (!address) {
     return (
       <button
-        onClick={() => void connect()}
+        onClick={() => void onConnect()}
         className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1.5 rounded transition-colors"
       >
         Connect Wallet
@@ -55,9 +31,9 @@ export default function WalletBar() {
       <span className="text-gray-400">|</span>
       {loading ? (
         <span className="text-gray-400 animate-pulse">…</span>
-      ) : balError ? (
+      ) : error ? (
         <button
-          onClick={() => void fetchBalance(address)}
+          onClick={refresh}
           className="text-red-500 hover:text-red-600 text-xs"
           title="Failed to load balance — click to retry"
         >
@@ -65,12 +41,12 @@ export default function WalletBar() {
         </button>
       ) : (
         <span className="text-gray-700 dark:text-gray-300">
-          {balance ?? '—'} USDC
+          {balance !== null ? `${fromStroops(balance)} USDC` : '—'}
         </span>
       )}
-      {!loading && !balError && balance !== null && (
+      {!loading && !error && balance !== null && (
         <button
-          onClick={() => void fetchBalance(address)}
+          onClick={refresh}
           className="text-gray-400 hover:text-gray-600 text-xs"
           title="Refresh balance"
         >

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useWallet } from '../lib/WalletContext'
 import { useToast } from '../lib/ToastContext'
+import { useBalanceCtx } from '../lib/BalanceContext'
 import { getToken } from '../lib/clients'
 import { runTx } from '../lib/tx'
 import { fromStroops } from '../lib/format'
@@ -9,6 +10,7 @@ import { useBalance } from '../hooks/useBalance'
 export default function RampPage() {
   const { address, connect, signTransaction } = useWallet()
   const toast = useToast()
+  const { refresh: refreshHeader } = useBalanceCtx()
   const { balance, loading: balanceLoading, refetch } = useBalance(address)
   const [depositing, setDepositing] = useState(false)
   const [withdrawAmount, setWithdrawAmount] = useState('')
@@ -30,6 +32,7 @@ export default function RampPage() {
       await runTx(assembled)
       toast.success('1000 test USDC deposited to your wallet!')
       refetch()
+      refreshHeader()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e))
     } finally {

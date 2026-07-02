@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useWallet } from '../lib/WalletContext'
 import { useToast } from '../lib/ToastContext'
+import { useBalanceCtx } from '../lib/BalanceContext'
 import { getToken } from '../lib/clients'
 import { runTx } from '../lib/tx'
 import { fromStroops } from '../lib/format'
@@ -10,8 +11,13 @@ import { useBalance } from '../hooks/useBalance'
 export default function OnboardingPage() {
   const { address, connect, signTransaction } = useWallet()
   const toast = useToast()
+  const { refresh: refreshHeader } = useBalanceCtx()
   const { balance, loading: balanceLoading, refetch } = useBalance(address)
   const [claiming, setClaiming] = useState(false)
+
+  const onConnect = async () => {
+    try { await connect() } catch { /* user cancelled */ }
+  }
 
   const handleClaim = async () => {
     if (!address) return
@@ -22,6 +28,7 @@ export default function OnboardingPage() {
       await runTx(assembled)
       toast.success('1000 USDC claimed successfully!')
       refetch()
+      refreshHeader()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e))
     } finally {
@@ -57,7 +64,7 @@ export default function OnboardingPage() {
                   </p>
                 ) : (
                   <button
-                    onClick={connect}
+                    onClick={() => void onConnect()}
                     className="mt-4 w-full bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
                   >
                     Connect Wallet

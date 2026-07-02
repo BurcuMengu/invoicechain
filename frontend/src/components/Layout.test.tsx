@@ -1,17 +1,20 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { WalletProvider } from '../lib/WalletContext'
+import { BalanceProvider } from '../lib/BalanceContext'
 import { ToastProvider } from '../lib/ToastContext'
 import Layout from './Layout'
 
 function renderLayout() {
   return render(
     <WalletProvider>
-      <ToastProvider>
-        <MemoryRouter>
-          <Layout />
-        </MemoryRouter>
-      </ToastProvider>
+      <BalanceProvider>
+        <ToastProvider>
+          <MemoryRouter>
+            <Layout />
+          </MemoryRouter>
+        </ToastProvider>
+      </BalanceProvider>
     </WalletProvider>,
   )
 }

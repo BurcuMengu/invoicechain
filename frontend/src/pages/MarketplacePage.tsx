@@ -5,6 +5,7 @@ import { useOpenInvoices } from '../hooks/useInvoices'
 import InvoiceCard from '../components/InvoiceCard'
 import { useWallet } from '../lib/WalletContext'
 import { useToast } from '../lib/ToastContext'
+import { useBalanceCtx } from '../lib/BalanceContext'
 import { getMarketplace, getToken } from '../lib/clients'
 import { runTx } from '../lib/tx'
 import { salePrice } from '../lib/format'
@@ -40,6 +41,7 @@ export default function MarketplacePage() {
   const { invoices, loading, error, refetch } = useOpenInvoices()
   const { address, connect, signTransaction } = useWallet()
   const toast = useToast()
+  const { refresh: refreshHeader } = useBalanceCtx()
   const [pendingId, setPendingId] = useState<bigint | null>(null)
 
   const handleBuy = async (invoiceId: bigint, faceValue: bigint, discountBps: number) => {
@@ -74,6 +76,7 @@ export default function MarketplacePage() {
 
       toast.success('Invoice purchased successfully!')
       refetch()
+      refreshHeader()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Transaction failed.')
     } finally {
@@ -117,7 +120,7 @@ export default function MarketplacePage() {
               {inv.status.tag === 'Listed' && (
                 <button
                   onClick={() => handleBuy(inv.id, inv.face_value, inv.discount_bps)}
-                  disabled={pendingId !== null && pendingId === inv.id}
+                  disabled={pendingId !== null || !address}
                   className="w-full py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
                 >
                   {pendingId !== null && pendingId === inv.id ? 'Processing…' : 'Buy'}

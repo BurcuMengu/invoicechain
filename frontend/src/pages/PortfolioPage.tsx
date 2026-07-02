@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Server } from '@stellar/stellar-sdk/rpc'
 import { useWallet } from '../lib/WalletContext'
 import { useToast } from '../lib/ToastContext'
+import { useBalanceCtx } from '../lib/BalanceContext'
 import { getMarketplace, getToken, getReputation } from '../lib/clients'
 import { runTx, readTx } from '../lib/tx'
 import { config } from '../lib/config'
@@ -29,6 +30,7 @@ function ratingLabel(score: Score): string {
 export default function PortfolioPage() {
   const { address, connect, signTransaction } = useWallet()
   const toast = useToast()
+  const { refresh: refreshHeader } = useBalanceCtx()
 
   const {
     invoices: sellerInvoices,
@@ -128,6 +130,7 @@ export default function PortfolioPage() {
 
       toast.success('Invoice settled successfully!')
       refetchAll()
+      refreshHeader()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Settle failed.')
     } finally {

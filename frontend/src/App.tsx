@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import MarketplacePage from './pages/MarketplacePage'
 import CreatePage from './pages/CreatePage'
@@ -16,6 +16,7 @@ export default function App() {
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="ramp" element={<RampPage />} />
           <Route path="onboarding" element={<OnboardingPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>
