@@ -175,6 +175,14 @@ Keys are supplied at build time via `VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY`,
 `VITE_POSTHOG_HOST` (GitHub Actions secrets/vars for the deployed build; see
 `frontend/.env.example` for local dev).
 
+| PostHog — product analytics + session replay | Sentry — error monitoring |
+|---|---|
+| ![PostHog analytics](docs/screenshots/analytics-posthog.png) | ![Sentry monitoring](docs/screenshots/analytics-sentry.png) |
+
+The PostHog capture shows live events from the deployed app — `wallet_connected`,
+`Identify` (wallet address), plus autocapture and web vitals; Sentry shows the
+configured `invoicechain` monitoring project.
+
 ## Repo layout
 
 ```
