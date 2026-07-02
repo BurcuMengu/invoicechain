@@ -25,6 +25,62 @@ export let analyticsEnabled = false
 export { Sentry }
 
 /**
+ * localStorage flag: when set to '1', the user has opted out of product
+ * analytics + session replay for this browser. Read defensively — localStorage
+ * can throw (private mode, disabled cookies, SSR).
+ */
+const OPTOUT_KEY = 'ic_analytics_optout'
+
+/** True when the user has opted out of analytics on this browser. */
+export function hasOptedOut(): boolean {
+  try {
+    return localStorage.getItem(OPTOUT_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Opt out of product analytics + session replay for this browser. Sets the
+ * persistent flag and, if PostHog is already running, tells it to stop
+ * capturing and stop any active session recording. Best-effort, never throws.
+ */
+export function optOut(): void {
+  try {
+    localStorage.setItem(OPTOUT_KEY, '1')
+  } catch {
+    /* localStorage unavailable — flag can't persist, still stop capture below */
+  }
+  if (posthogOn) {
+    try {
+      posthog.opt_out_capturing()
+      posthog.stopSessionRecording?.()
+    } catch {
+      /* never throw from analytics */
+    }
+  }
+  posthogOn = false
+  analyticsEnabled = false
+}
+
+/**
+ * Re-enable product analytics for this browser. Clears the opt-out flag and, if
+ * PostHog is present, resumes capturing. Best-effort, never throws.
+ */
+export function optIn(): void {
+  try {
+    localStorage.removeItem(OPTOUT_KEY)
+  } catch {
+    /* ignore */
+  }
+  try {
+    posthog.opt_in_capturing?.()
+  } catch {
+    /* never throw from analytics */
+  }
+}
+
+/**
  * Initialize Sentry and/or PostHog if their keys are present. Safe to call
  * once at startup. If neither key is present, does nothing.
  */
@@ -44,7 +100,9 @@ export function initAnalytics(): void {
     }
   }
 
-  if (POSTHOG_KEY) {
+  // Respect the analytics opt-out: skip PostHog (analytics + session replay)
+  // entirely. Sentry error monitoring above stays on — it only captures errors.
+  if (POSTHOG_KEY && !hasOptedOut()) {
     try {
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,

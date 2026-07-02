@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import WalletBar from './WalletBar'
 import FeedbackWidget from './FeedbackWidget'
+import PrivacyNotice from './PrivacyNotice'
+
+const PRIVACY_URL = 'https://github.com/BurcuMengu/invoicechain/blob/master/PRIVACY.md'
 
 const NAV_LINKS = [
   { to: '/', label: 'Marketplace', end: true },
@@ -94,7 +97,23 @@ export default function Layout() {
         </div>
       </main>
 
+      {/* Footer */}
+      <footer className="border-t border-gray-200 dark:border-gray-800 mt-4">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400 dark:text-gray-500">
+          <span>InvoiceChain · Stellar testnet demo</span>
+          <a
+            href={PRIVACY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-indigo-600 transition-colors"
+          >
+            Privacy
+          </a>
+        </div>
+      </footer>
+
       <FeedbackWidget />
+      <PrivacyNotice />
     </div>
   )
 }
