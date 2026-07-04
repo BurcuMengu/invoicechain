@@ -183,6 +183,13 @@ The PostHog capture shows live events from the deployed app — `wallet_connecte
 `Identify` (wallet address), plus autocapture and web vitals; Sentry shows the
 configured `invoicechain` monitoring project.
 
+## User feedback
+
+Collected in-app via the 💬 feedback widget (rating + message → PostHog +
+localStorage). Early responses average **★5.0**, praising the instant
+cash-for-invoice flow, clear discount/price math, and the clean wallet UX; the
+main suggestion is marketplace sort/filter. Full write-up: **[FEEDBACK.md](FEEDBACK.md)**.
+
 ## Repo layout
 
 ```
