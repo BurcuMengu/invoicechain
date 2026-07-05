@@ -204,8 +204,10 @@ account with XLM (Friendbot) → one-click test-USDC faucet → first action in
 Google Form that captures **wallet address, email, name, and a product rating +
 feedback**:
 
-- 📋 **Sign-up / feedback form:** <!-- REPLACE with your Google Form link --> `<GOOGLE_FORM_LINK>`
-- 📊 **Exported responses (Excel):** [docs/user-responses.xlsx](docs/user-responses.xlsx) <!-- add the exported .xlsx here -->
+- 📋 **Sign-up / feedback form:** [InvoiceChain — User Sign-up & Feedback](https://docs.google.com/forms/d/e/1FAIpQLSedufZ1eeNB0eYKj5D4lfCiQWm3G0nNegmPA-NyLh9vVdwWbA/viewform)
+  (name, email, Stellar wallet address, a 1–5 rating, and open feedback)
+- 📊 **Responses → Excel:** form responses sync to a linked Google Sheet and are
+  exported to `docs/user-responses.xlsx` (added as responses come in).
 
 ### How feedback drives the next iteration
 
