@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Server } from '@stellar/stellar-sdk/rpc'
 import { useOpenInvoices } from '../hooks/useInvoices'
@@ -45,6 +45,24 @@ export default function MarketplacePage() {
   const { refresh: refreshHeader } = useBalanceCtx()
   const [pendingId, setPendingId] = useState<bigint | null>(null)
 
+  // Sorting — added from user feedback ("sort/filter invoices by discount or amount").
+  type SortKey = 'newest' | 'discount' | 'amount-desc' | 'amount-asc' | 'price-asc'
+  const [sortBy, setSortBy] = useState<SortKey>('newest')
+
+  const byBigint = (a: bigint, b: bigint) => (a > b ? 1 : a < b ? -1 : 0)
+  const sortedInvoices = useMemo(() => {
+    const arr = [...invoices]
+    const comparators: Record<SortKey, (a: typeof arr[number], b: typeof arr[number]) => number> = {
+      newest: (a, b) => byBigint(b.id, a.id),
+      discount: (a, b) => b.discount_bps - a.discount_bps,
+      'amount-desc': (a, b) => byBigint(b.face_value, a.face_value),
+      'amount-asc': (a, b) => byBigint(a.face_value, b.face_value),
+      'price-asc': (a, b) =>
+        byBigint(salePrice(a.face_value, a.discount_bps), salePrice(b.face_value, b.discount_bps)),
+    }
+    return arr.sort(comparators[sortBy])
+  }, [invoices, sortBy])
+
   const handleBuy = async (invoiceId: bigint, faceValue: bigint, discountBps: number) => {
     if (!address) {
       try {
@@ -89,9 +107,28 @@ export default function MarketplacePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Marketplace</h1>
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        <div className="flex items-center gap-3">
+          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+          {!loading && !error && invoices.length > 0 && (
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              Sort by
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortKey)}
+                aria-label="Sort invoices"
+                className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              >
+                <option value="newest">Newest</option>
+                <option value="discount">Highest discount</option>
+                <option value="amount-desc">Amount: high → low</option>
+                <option value="amount-asc">Amount: low → high</option>
+                <option value="price-asc">Price: low → high</option>
+              </select>
+            </label>
+          )}
+        </div>
       </div>
 
       {loading && (
@@ -132,7 +169,7 @@ export default function MarketplacePage() {
 
       {!loading && !error && invoices.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {invoices.map((inv) => (
+          {sortedInvoices.map((inv) => (
             <InvoiceCard key={String(inv.id)} invoice={inv}>
               {inv.status.tag === 'Listed' && (
                 <button

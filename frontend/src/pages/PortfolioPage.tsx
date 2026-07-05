@@ -299,23 +299,33 @@ export default function PortfolioPage() {
               return (
                 <InvoiceCard key={String(inv.id)} invoice={inv}>
                   {inv.status.tag === 'Funded' && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSettle(inv.id, inv.face_value)}
-                        disabled={pendingId !== null}
-                        className="flex-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {pendingId === inv.id ? 'Processing…' : 'Settle'}
-                      </button>
-                      {isPastDue && (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => handleMarkDefault(inv.id)}
+                          onClick={() => handleSettle(inv.id, inv.face_value)}
                           disabled={pendingId !== null}
-                          className="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          title="Settle pays the invoice's full face value to you (the current owner) and marks it Settled — completing the deal and boosting the seller's reputation."
+                          className="flex-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Mark Default
+                          {pendingId === inv.id ? 'Processing…' : 'Settle'}
                         </button>
-                      )}
+                        {isPastDue && (
+                          <button
+                            onClick={() => handleMarkDefault(inv.id)}
+                            disabled={pendingId !== null}
+                            title="This invoice is past due and unpaid. Marking it Defaulted closes it and lowers the seller's reputation."
+                            className="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Mark Default
+                          </button>
+                        )}
+                      </div>
+                      {/* Inline explainer (mobile-friendly — feedback: a tooltip on "settle" helps first-timers). */}
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <strong className="font-medium">Settle</strong> pays the invoice's full
+                        value to you and closes the deal.
+                        {isPastDue && ' Mark Default flags an unpaid, past-due invoice.'}
+                      </p>
                     </div>
                   )}
                 </InvoiceCard>
