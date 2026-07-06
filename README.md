@@ -207,7 +207,7 @@ feedback**:
 - 📋 **Sign-up / feedback form:** [InvoiceChain — User Sign-up & Feedback](https://docs.google.com/forms/d/e/1FAIpQLSedufZ1eeNB0eYKj5D4lfCiQWm3G0nNegmPA-NyLh9vVdwWbA/viewform)
   (name, email, Stellar wallet address, a 1–5 rating, and open feedback)
 - 📊 **Responses → Excel:** form responses sync to a linked Google Sheet and are
-  exported to `docs/user-responses.xlsx` (added as responses come in).
+  exported to `docs/user-responses.xlsx`.
 
 **Responses so far — 3 sign-ups, ★5.0 average** (names & emails anonymized;
 wallet, rating and feedback are real):
@@ -228,9 +228,9 @@ Real user feedback is turned into shipped changes, each linked to its commit:
 | "Sort/filter invoices by discount or amount" | Marketplace **sort** control (discount / amount / price) | [`92d49a4`](https://github.com/BurcuMengu/invoicechain/commit/92d49a4) |
 | "A tooltip on 'settle' would help first-time users" | **Settle explainer** (desktop tooltip + mobile caption) | [`92d49a4`](https://github.com/BurcuMengu/invoicechain/commit/92d49a4) |
 
-**Planned next, from ongoing form + widget feedback:** amount/discount range
+**Planned next, from form + widget feedback:** amount/discount range
 filters, an in-app activity feed, and a settle notification. See
-[FEEDBACK.md](FEEDBACK.md) for the running log.
+[FEEDBACK.md](FEEDBACK.md) for the full log.
 
 ## Repo layout
 

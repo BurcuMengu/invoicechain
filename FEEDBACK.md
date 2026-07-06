@@ -50,10 +50,9 @@ Both suggestions from real users were implemented in the next iteration:
 
 ## Next
 
-- Continue collecting feedback as more users onboard; this summary is updated
-  from the live `feedback_submitted` data.
-- Candidate next iterations from ongoing feedback: richer marketplace filters
+- Feedback is collected in-app (💬 widget) and via the sign-up form, captured as
+  `feedback_submitted` events in PostHog.
+- Candidate next iterations from feedback: richer marketplace filters
   (amount/discount ranges), an in-app activity feed, and a settle notification.
 
-> Note: testnet demo — feedback reflects the early user group. Collection is
-> ongoing.
+> Note: testnet demo — feedback reflects the early user group.
