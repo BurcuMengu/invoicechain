@@ -209,6 +209,11 @@ feedback**:
 - 📊 **Responses → Excel:** form responses sync to a linked Google Sheet and are
   exported to `docs/user-responses.xlsx` (added as responses come in).
 
+**Responses so far — 3 sign-ups, ★5.0 average** (names & emails anonymized;
+wallet, rating and feedback are real):
+
+![Sign-up & feedback form responses](docs/screenshots/user-responses.png)
+
 ![Sign-up & feedback form demo](docs/signup-form-demo.gif)
 
 *The published form in action — collecting name, email, Stellar wallet address, a
